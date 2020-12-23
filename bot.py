@@ -4,9 +4,6 @@ TOKEN=""
 DB=None
 cursor=None
 
-logging.basicConfig(filename='convbot.debug.log',level=logging.DEBUG)
-logging.basicConfig(filename='convbot.log',level=logging.INFO)
-logging.basicConfig(filename='convbot.error.log',level=logging.ERROR)
 client=discord.Client()
 
 def err(message):
