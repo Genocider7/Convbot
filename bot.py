@@ -29,7 +29,6 @@ DB = mysql.connector.connect(
     host = "localhost",
     user = "root",
     password = MYSQLPASSWD,
-    port = "42"
 )
 
 cursor = DB.cursor()
