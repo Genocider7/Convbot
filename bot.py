@@ -11,11 +11,11 @@ def err(message):
     logging.error(message)
 
 def debug(message):
-    logging.basicConfig(filename='convbot.error.log',level=logging.DEBUG)
+    logging.basicConfig(filename='convbot.debug.log',level=logging.DEBUG)
     logging.debug(message)
 
 def log(message):
-    logging.basicConfig(filename='convbot.error.log',level=logging.INFO)
+    logging.basicConfig(filename='convbot.log',level=logging.INFO)
     logging.info(message)
 
 
