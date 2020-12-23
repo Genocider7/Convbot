@@ -9,18 +9,31 @@ logging.basicConfig(filename='convbot.log',level=logging.INFO)
 logging.basicConfig(filename='convbot.error.log',level=logging.ERROR)
 client=discord.Client()
 
+def err(message):
+    logging.basicConfig(filename='convbot.error.log',level=logging.ERROR)
+    logging.error(message)
+
+def debug(message):
+    logging.basicConfig(filename='convbot.error.log',level=logging.DEBUG)
+    logging.debug(message)
+
+def log(message):
+    logging.basicConfig(filename='convbot.error.log',level=logging.INFO)
+    logging.info(message)
+
+
 @client.event
 async def on_message(message):
     global cursor
     if message.author==client.user:
         return
     await message.channel.send("I'm here")
-    logging.info(message.channel.guild)
+    log(message.channel.guild)
 
 @client.event
 async def on_ready():
-    logging.info("Logged in as "+str(client.user.name))
-    logging.info(client.user.id)
+    log("Logged in as "+str(client.user.name))
+    log(client.user.id)
 
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
