@@ -18,6 +18,7 @@ async def on_message(message):
         return
     await message.channel.send("I'm here")
     logging.info(str(message.channel.guild))
+    print(2/0)
 
 @client.event
 async def on_ready():
