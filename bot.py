@@ -39,14 +39,14 @@ def insert(table, fields, values):
         return False
     if len(fields)!=len(values):
         return False
-    sql = "INSER INTO %s (%s"
+    sql = "INSER INTO "+table+" ("+fields[0]
     for i in range(len(fields)-1):
-        sql = sql+", %s"
-    sql = sql + ") VALUES (\"%s\""
+        sql = sql+", "+fields[i+1]
+    sql = sql + ") VALUES (\""+values[0]+"\""
     for i in range(len(fields)-1):
-        sql = sql+", \"%s\""
+        sql = sql+", \""+values[i+1]+"\""
     sql = sql + ")"
-    cursor.execute(sql, table, fields, values)
+    cursor.execute(sql)
     DB.commit()
     return True
 
