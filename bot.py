@@ -37,6 +37,7 @@ def insert(table, fields, values):
 @client.event
 async def on_message(message):
     global cursor
+    cursor = DB.cursor()
     if message.author==client.user:
         return
     mes = message.content.lower()
