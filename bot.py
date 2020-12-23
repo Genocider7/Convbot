@@ -1,8 +1,8 @@
 import discord, mysql.connector
 
 TOKEN=""
-MYSQLPASSWD=""
 DB=None
+cursor=None
 
 client=discord.Client()
 
@@ -22,14 +22,10 @@ async def on_ready():
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
 secretfile.close()
-secretfile = open("MYSQLPASSWD","r")
-MYSQLPASSWD = secretfile.read()
-secretfile.close()
-print("PASSWORD: "+MYSQLPASSWD)
 DB = mysql.connector.connect(
     host = 'localhost',
     user = 'root',
-    password = MYSQLPASSWD,
+    password = '&G"Pt_l1+wvbbPBS',
     database = 'conversation_botDB'
 )
 
