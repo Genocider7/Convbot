@@ -30,6 +30,7 @@ DB = mysql.connector.connect(
     host = 'localhost',
     user = 'root',
     password = MYSQLPASSWD,
+    database = 'conversation_botDB'
 )
 
 cursor = DB.cursor()
