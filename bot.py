@@ -8,7 +8,7 @@ logging.basicConfig(filename='convbot.log',
 filemode='a',
 format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
 datefmt='%H:%M:%S',
-level=logging.INFO)
+level=logging.CRITICAL)
 client=discord.Client()
 
 @client.event
