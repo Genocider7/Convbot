@@ -79,8 +79,9 @@ async def on_guild_join(guild):
     global cursor
     connect_db()
     for member in guild.members:
+        print("Found member %s", str(member))
         if member.guild_permissions.administrator:
-            print("Found admin - %s",str(member))
+            print("OwO he's admin\n")
             mod_id = str(member.id)
             check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
             if len(check) == 0:
