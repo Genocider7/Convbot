@@ -100,5 +100,5 @@ secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
 secretfile.close()
 connect_db()
-
+insert("moderators",("moderator", "server"),("test", "test"))
 client.run(TOKEN)
