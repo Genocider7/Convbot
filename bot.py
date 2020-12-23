@@ -11,6 +11,7 @@ async def on_message(message):
     global cursor
     if message.author==client.user:
         return
+    await message.channel.send("I'm here")
     print(message.channel.guild)
 
 @client.event
