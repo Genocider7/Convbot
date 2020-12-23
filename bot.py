@@ -26,9 +26,9 @@ def insert(table, fields, values):
     sql = "INSER INTO %s (%s"
     for i in range(len(fields)-1):
         sql = sql+", %s"
-    sql = sql + ") VALUES (%s"
+    sql = sql + ") VALUES (\"%s\""
     for i in range(len(fields)-1):
-        sql = sql+", %s"
+        sql = sql+", \"%s\""
     sql = sql + ")"
     cursor.execute(sql, table, fields, values)
     DB.commit()
@@ -41,7 +41,7 @@ async def on_message(message):
         return
     mes = message.content.lower()
     
-    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = "+mes+" AND server = ALL")
+    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
     if not response:
         if str(message.channel.type) == "private":
             await message.channel.send("Ten bot działa tylko na serwerach, nie DMach")
@@ -50,7 +50,7 @@ async def on_message(message):
         await message.channel.send(response)
         return
 
-    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = "+mes+" AND server = "+str(message.channel.guild.id))
+    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
     if response:
         await message.channel.send(response)
         return
