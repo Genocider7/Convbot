@@ -1,14 +1,10 @@
-import discord, mysql.connector, logging
+import discord, mysql.connector, sys
 
 TOKEN=""
 DB=None
 cursor=None
+sys.stdout=open("convbot.log","a")
 
-logging.basicConfig(filename='convbot.log',
-filemode='a',
-format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-datefmt='%H:%M:%S',
-level=logging.CRITICAL)
 client=discord.Client()
 
 @client.event
@@ -17,13 +13,13 @@ async def on_message(message):
     if message.author==client.user:
         return
     await message.channel.send("I'm here")
-    logging.info(str(message.channel.guild))
+    print(message.channel.guild)
     print(2/0)
 
 @client.event
 async def on_ready():
-    logging.info("Logged in as "+str(client.user.name))
-    logging.info(client.user.id)
+    print("Logged in as "+str(client.user.name))
+    print(client.user.id)
 
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
