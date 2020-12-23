@@ -97,7 +97,7 @@ async def on_message(message):
         if not permission:
             await message.channel.send("Nie masz odpowiednich uprawnień")
             return
-        lis = get_pattern(mes)
+        lis = get_pattern(message.content)
         if not lis:
             await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
             return
