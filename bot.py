@@ -5,7 +5,9 @@ DB=None
 cursor=None
 sys.stdout=open("convbot.log","a")
 sys.stderr=open("convbot.error.log","a")
-client=discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+client = discord.Client(intents = intents)
 
 def has_role(user, role):
     for user_role in user.roles:
