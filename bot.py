@@ -39,7 +39,7 @@ async def on_message(message):
     global cursor
     if message.author==client.user:
         return
-    mes = message.lower()
+    mes = message.content.lower()
     
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = "+mes+" AND server = ALL")
     if not response:
