@@ -3,6 +3,8 @@ from datetime import datetime
 TOKEN=""
 DB=None
 cursor=None
+
+forbidden = ["c!set", "c!addmoderator", "c!removemoderator", "c!edit", "c!delete",  "c!list", "c!mods"]
 sys.stdout=open("convbot.log","a")
 sys.stderr=open("convbot.error.log","a")
 intents = discord.Intents.default()
@@ -21,7 +23,7 @@ def connect_db():
     host = 'localhost',
     user = 'convbot',
     password = '&G"Pt_l1+wvbbPBS',
-    database = 'conversation_botDB'
+    database = 'convbotDB'
     )
     cursor = DB.cursor()
 
@@ -52,6 +54,14 @@ def insert(table, fields, values):
     DB.commit()
     return True
 
+def get_pattern(message):
+    mes=message[6:]
+    arr = mes.split(" # ",2)
+    if len(arr) == 2:
+        return arr
+    else:
+        return False
+
 @client.event
 async def on_message(message):
     global cursor
@@ -59,7 +69,7 @@ async def on_message(message):
     if message.author==client.user:
         return
     mes = message.content.lower()
-    
+
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
     if not response:
         if str(message.channel.type) == "private":
@@ -69,6 +79,32 @@ async def on_message(message):
         await message.channel.send(response[0])
         return
 
+    if mes.startswith("c!set "):
+        permission = False
+        guild_id = str(message.channel.guild.id)
+        mods = select("SELECT moderator, is_user, is_role FROM moderators WHERE server = \""+guild_id+"\"")
+        for mod in mods:
+            if mod[1] and str(message.author.id) == mod[0]:
+                permission = True
+                break
+            if mod[2]:
+                for role in message.author.roles:
+                    if str(role.id) == mod[0]:
+                        permission = True
+                        break
+                if permission:
+                    break
+        if not permission:
+            await message.channel.send("Nie masz odpowiednich uprawnień")
+            return
+        lis = get_pattern(mes)
+        if not lis:
+            await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
+            return
+        insert("conversations", ("message", "response", "server"), (lis[0], lis[1], guild_id))
+        await message.channel.send("Gotowe!")
+        return
+
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
     if response:
         await message.channel.send(response[0])
@@ -76,14 +112,10 @@ async def on_message(message):
 
 @client.event
 async def on_guild_join(guild):
-    print("Joined guild ",str(guild))
-    print("Guild owner: ", str(guild.owner))
     global cursor
     for member in guild.members:
-        print("Found member ", str(member))
         if member.guild_permissions.administrator:
             connect_db()
-            print("OwO he's admin\n")
             mod_id = str(member.id)
             check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
             if len(check) == 0:
