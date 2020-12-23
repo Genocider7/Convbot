@@ -7,6 +7,16 @@ sys.stdout=open("convbot.log","a")
 sys.stderr=open("convbot.error.log","a")
 client=discord.Client()
 
+def connect_db():
+    global DB, cursor
+    DB = mysql.connector.connect(
+    host = 'localhost',
+    user = 'convbot',
+    password = '&G"Pt_l1+wvbbPBS',
+    database = 'conversation_botDB'
+    )
+    cursor = DB.cursor()
+
 def select(query):
     global cursor
     cursor.execute(query)
@@ -37,7 +47,7 @@ def insert(table, fields, values):
 @client.event
 async def on_message(message):
     global cursor
-    cursor = DB.cursor()
+    connect_db()
     if message.author==client.user:
         return
     mes = message.content.lower()
@@ -65,13 +75,6 @@ async def on_ready():
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
 secretfile.close()
-DB = mysql.connector.connect(
-    host = 'localhost',
-    user = 'convbot',
-    password = '&G"Pt_l1+wvbbPBS',
-    database = 'conversation_botDB'
-)
-
-cursor = DB.cursor()
+connect_db()
 
 client.run(TOKEN)
