@@ -74,6 +74,8 @@ async def on_message(message):
 
 @client.event
 async def on_guild_join(guild):
+    print("Joined guild ",str(guild))
+    print("Guild owner: ", str(guild.owner))
     global cursor
     connect_db()
     for member in guild.members:
