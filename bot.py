@@ -1,9 +1,10 @@
-import discord, mysql.connector
+import discord, mysql.connector, logging
 
 TOKEN=""
 DB=None
 cursor=None
 
+logging.basicConfig(filename='conv.log',level=logging.DEBUG)
 client=discord.Client()
 
 @client.event
@@ -12,12 +13,12 @@ async def on_message(message):
     if message.author==client.user:
         return
     await message.channel.send("I'm here")
-    print(message.channel.guild)
+    logging.debug(message.channel.guild)
 
 @client.event
 async def on_ready():
-    print("Logged in as ",client.user.name)
-    print(client.user.id)
+    logging.debug("Logged in as "+str(client.user.name))
+    logging.debug(client.user.id)
 
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
