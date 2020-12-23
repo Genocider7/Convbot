@@ -7,6 +7,12 @@ sys.stdout=open("convbot.log","a")
 sys.stderr=open("convbot.error.log","a")
 client=discord.Client()
 
+def has_role(user, role):
+    for user_role in user.roles:
+        if role.id == user_role.id:
+            return True
+    return False
+
 def connect_db():
     global DB, cursor
     DB = mysql.connector.connect(
@@ -65,6 +71,24 @@ async def on_message(message):
     if response:
         await message.channel.send(response[0])
         return
+
+@client.event
+async def on_guild_join(guild):
+    global cursor
+    connect_db()
+    for member in guild.members:
+        if member.guild_permissions.administrator:
+            mod_id = str(member.id)
+            check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
+            if not check:
+                server = str(guild.id)
+                insert("moderators", ("moderator", "is_user", "server"), (mod_id, "1", server))
+    connect_db()
+    owner_id = str(guild.owner.id)
+    check = select("SELECT id FROM moderators WHERE moderator = \""+owner_id+"\" AND is_user = 1")
+    if not check:
+        server = str(guild.id)
+        insert("moderators", ("moderator", "is_user", "server"), (owner_id, "1", server))
 
 @client.event
 async def on_ready():
