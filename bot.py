@@ -24,7 +24,7 @@ TOKEN = secretfile.read()
 secretfile.close()
 DB = mysql.connector.connect(
     host = 'localhost',
-    user = 'root',
+    user = 'convbot',
     password = '&G"Pt_l1+wvbbPBS',
     database = 'conversation_botDB'
 )
