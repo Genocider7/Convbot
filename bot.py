@@ -4,20 +4,8 @@ TOKEN=""
 DB=None
 cursor=None
 
+logging.basicConfig(filename='convbot.log',level=logging.INFO)
 client=discord.Client()
-
-def err(message):
-    logging.basicConfig(filename='convbot.error.log',level=logging.ERROR)
-    logging.error(message)
-
-def debug(message):
-    logging.basicConfig(filename='convbot.debug.log',level=logging.DEBUG)
-    logging.debug(message)
-
-def log(message):
-    logging.basicConfig(filename='convbot.log',level=logging.INFO)
-    logging.info(message)
-
 
 @client.event
 async def on_message(message):
@@ -25,12 +13,12 @@ async def on_message(message):
     if message.author==client.user:
         return
     await message.channel.send("I'm here")
-    log(message.channel.guild)
+    logging.info(str(message.channel.guild))
 
 @client.event
 async def on_ready():
-    log("Logged in as "+str(client.user.name))
-    log(client.user.id)
+    logging.debug("Logged in as "+str(client.user.name))
+    logging.debug(client.user.id)
 
 secretfile = open("TOKEN","r")
 TOKEN = secretfile.read()
