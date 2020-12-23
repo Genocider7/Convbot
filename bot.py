@@ -39,7 +39,7 @@ def insert(table, fields, values):
         return False
     if len(fields)!=len(values):
         return False
-    sql = "INSER INTO "+table+" ("+fields[0]
+    sql = "INSERT INTO "+table+" ("+fields[0]
     for i in range(len(fields)-1):
         sql = sql+", "+fields[i+1]
     sql = sql + ") VALUES (\""+values[0]+"\""
