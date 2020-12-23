@@ -101,7 +101,7 @@ async def on_message(message):
         if not lis:
             await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
             return
-        check = select("SELECT id FROM conversations WHERE LOWER(message) = \""+lower(lis[0])+"\"")
+        check = select("SELECT id FROM conversations WHERE LOWER(message) = \""+lis[0].lower()+"\"")
         if check:
             await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
             return
