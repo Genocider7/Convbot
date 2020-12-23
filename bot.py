@@ -27,8 +27,8 @@ MYSQLPASSWD = secretfile.read()
 secretfile.close()
 print("PASSWORD: "+MYSQLPASSWD)
 DB = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
+    host = 'localhost',
+    user = 'root',
     password = MYSQLPASSWD,
 )
 
