@@ -25,7 +25,7 @@ secretfile.close()
 secretfile = open("MYSQLPASSWD","r")
 MYSQLPASSWD = secretfile.read()
 secretfile.close()
-print(MYSQLPASSWD)
+print("PASSWORD: "+MYSQLPASSWD)
 DB = mysql.connector.connect(
     host = "localhost",
     user = "root",
