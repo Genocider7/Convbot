@@ -47,12 +47,12 @@ async def on_message(message):
             await message.channel.send("Ten bot działa tylko na serwerach, nie DMach")
             return
     else:
-        await message.channel.send(response)
+        await message.channel.send(response[0])
         return
 
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
     if response:
-        await message.channel.send(response)
+        await message.channel.send(response[0])
         return
 
 @client.event
