@@ -80,13 +80,13 @@ async def on_guild_join(guild):
         if member.guild_permissions.administrator:
             mod_id = str(member.id)
             check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
-            if not check:
+            if len(check) == 0:
                 server = str(guild.id)
                 insert("moderators", ("moderator", "is_user", "server"), (mod_id, "1", server))
     connect_db()
     owner_id = str(guild.owner.id)
     check = select("SELECT id FROM moderators WHERE moderator = \""+owner_id+"\" AND is_user = 1")
-    if not check:
+    if len(check) == 0:
         server = str(guild.id)
         insert("moderators", ("moderator", "is_user", "server"), (owner_id, "1", server))
 
