@@ -4,7 +4,7 @@ TOKEN=""
 DB=None
 cursor=None
 sys.stdout=open("convbot.log","a")
-sys.stderr=open("convobot.error.log","a")
+sys.stderr=open("convbot.error.log","a")
 client=discord.Client()
 
 @client.event
