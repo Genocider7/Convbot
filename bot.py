@@ -68,6 +68,12 @@ async def on_message(message):
     connect_db()
     if message.author==client.user:
         return
+    
+    #Super important feature. Bot doesn't work without it
+    if message.mention_everyone:
+        rage = "\U0001F621"
+        await message.add_reaction(rage)
+
     mes = message.content.lower()
 
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
