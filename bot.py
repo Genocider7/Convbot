@@ -76,7 +76,11 @@ async def on_message(message):
 
     mes = message.content.lower()
 
-    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
+    response = None
+    try:
+        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
+    except mysql.connector.errors.DatabaseError:
+        return
     if not response:
         if str(message.channel.type) == "private":
             await message.channel.send("Ten bot działa tylko na serwerach, nie DMach")
