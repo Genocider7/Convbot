@@ -78,7 +78,7 @@ async def on_message(message):
     
     #Super important feature. Bot doesn't work without it
     if message.mention_everyone:
-        rage = "\U0001F621"
+        rage = ":AngryPing:791612271293759508"
         await message.add_reaction(rage)
 
     mes = message.content.lower()
