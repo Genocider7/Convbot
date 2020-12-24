@@ -17,6 +17,14 @@ def has_role(user, role):
             return True
     return False
 
+def changequotes(word):
+    result = ""
+    for letter in word:
+        if letter=="\"":
+            result = result + "\\"
+        result = result + letter    
+    return result
+
 def connect_db():
     global DB, cursor
     DB = mysql.connector.connect(
@@ -65,7 +73,6 @@ def get_pattern(message):
 @client.event
 async def on_message(message):
     global cursor
-    connect_db()
     if message.author==client.user:
         return
     
@@ -75,10 +82,11 @@ async def on_message(message):
         await message.add_reaction(rage)
 
     mes = message.content.lower()
-
+    query_mes = changequotes(mes)
+    connect_db()
     response = None
     try:
-        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \"ALL\"")
+        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
     except mysql.connector.errors.DatabaseError:
         return
     if not response:
@@ -107,7 +115,7 @@ async def on_message(message):
         if not permission:
             await message.channel.send("Nie masz odpowiednich uprawnień")
             return
-        lis = get_pattern(message.content)
+        lis = get_pattern(changequotes(message.content))
         if not lis:
             await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
             return
@@ -119,7 +127,7 @@ async def on_message(message):
         await message.channel.send("Gotowe!")
         return
 
-    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
+    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
     if response:
         await message.channel.send(response[0])
         return
