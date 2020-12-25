@@ -11,12 +11,6 @@ intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents = intents)
 
-def has_role(user, role):
-    for user_role in user.roles:
-        if role.id == user_role.id:
-            return True
-    return False
-
 def changequotes(word):
     result = ""
     for letter in word:
