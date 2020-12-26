@@ -64,7 +64,7 @@ def delete(table, conditions):
     global cursor, DB
     cmd = "DELETE FROM "+table
     if len(conditions) != 0:
-        cmd = cmd + "WHERE " + conditions
+        cmd = cmd + " WHERE " + conditions
     cursor.execute(cmd)
     DB.commit()
 
