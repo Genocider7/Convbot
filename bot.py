@@ -268,12 +268,12 @@ async def on_message(message):
                     await message.channel.send("Indywidualni użytkownicy:")
                 for each in mods_users:
                     member = await message.channel.guild.fetch_member(int(each[0]))
-                    await message.channel.send(member.display_name+"(id: "+each[0]+")")
+                    await message.channel.send("**"+member.display_name+"** (id: "+each[0]+")")
                 if len(mods_roles) > 0:
                     await message.channel.send("Role moderatorskie:")
                 for each in mods_roles:
                     role = message.channel.guild.get_role(int(each[0]))
-                    await message.channel.send(role.name+"(id: "+each[0]+")")
+                    await message.channel.send("**"+role.name+"** (id: "+each[0]+")")
             else:
                 await message.author.send(msg)
                 if len(mods_users) > 0:
