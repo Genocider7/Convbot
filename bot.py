@@ -90,11 +90,11 @@ def check_if_mod(member, guild):
 
 @client.event
 async def on_message(message):
+    global cursor, forbidden
 
     now=datetime.now()
     sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": ")
 
-    global cursor, forbidden
     if message.author==client.user:
         return
     
@@ -193,7 +193,7 @@ async def on_message(message):
         await message.channel.send(response[0])
         return
     
-    sys.stderr.write("Everything went fine")
+    sys.stderr.write("OK\n")
 
 @client.event
 async def on_guild_join(guild):
