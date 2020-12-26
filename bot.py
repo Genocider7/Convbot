@@ -84,9 +84,26 @@ def delete(table, conditions):
     cursor.execute(cmd)
     DB.commit()
 
+def update(table, fields, values, conditions):
+    connect_db()
+    global cursor, DB
+    if len(fields) == 0:
+        return False
+    if len(fields) != len(values):
+        return False
+    sql = "UPDATE "+table+" SET "+fields[0]+" = "+values[0]
+    for i in range(1, len(values)):
+        sql = sql + ", "+fields[i]+" = "+values[i]
+    if len(conditions) > 0:
+        sql = sql + " WHERE "+conditions
+    cursor.execute(sql)
+    DB.commit()
+    return True
+
 def get_pattern(message):
-    mes=message[6:]
-    arr = mes.split(" # ",1)
+    temp = message.split(" ", 1)
+    mes = temp[1]
+    arr = mes.split(" # ", 1)
     if len(arr) == 2:
         return arr
     else:
@@ -108,8 +125,6 @@ def check_if_mod(member, guild):
 async def on_message(message):
     global cursor, forbidden
 
-    L_MES = "LOWER(message) = \""
-
     try:
         if message.author==client.user:
             return
@@ -123,7 +138,7 @@ async def on_message(message):
         query_mes = changequotes(mes)
         response = None
         try:
-            response = select_one("conversations", ("response",), L_MES+query_mes+"\" AND server = \"ALL\"")
+            response = select_one("conversations", ("response",), "LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
         except mysql.connector.errors.DatabaseError:
             return
         if not response:
@@ -143,7 +158,7 @@ async def on_message(message):
             if not lis:
                 await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
                 return
-            check = select("conversations", ("id",) ,L_MES+lis[0].lower()+"\"")
+            check = select("conversations", ("id",) ,"LOWER(message) = \""+lis[0].lower()+"\"")
             if check:
                 await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
                 return
@@ -187,13 +202,13 @@ async def on_message(message):
             return
 
         if mes.startswith("c!delete"):
-            words = changequotes(mes).split(" ", 1)
-            if len(words) != 2:
-                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!delete [wiadomość]")
-                return
             permission = check_if_mod(message.author, message.channel.guild)
             if not permission:
                 await message.channel.send("Nie masz odpowiednich uprawnień")
+                return
+            words = changequotes(mes).split(" ", 1)
+            if len(words) != 2:
+                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!delete [wiadomość]")
                 return
             conditions = "LOWER(message) = \""+words[1].lower()+"\" AND server = \""+str(message.channel.guild.id)+"\""
             check = select_one("conversations", ("id",), conditions)
@@ -204,10 +219,32 @@ async def on_message(message):
             await message.channel.send("Gotowe!")
             return        
 
-        response = select_one("conversations", ("response",), L_MES+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
+        if mes.startswith("c!edit"):
+            permission = check_if_mod(message.author, message.channel.guild)
+            if not permission:
+                await message.channel.send("Nie masz odpowiednich uprawnień")
+                return
+            pattern = get_pattern(message.content)
+            if not pattern:
+                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!edit [wiadomość] # [odpowiedź]")
+                return
+            sql_mes = pattern[0].lower()
+            sql_res = pattern[1]
+            check = select("conversations", ("id",), "LOWER(message) = \""+sql_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
+            if not check:
+                await message.channel.send("Nie znaleziono podanej wiadomości w bazie danych")
+                return
+            if update("conversations",("response",), (sql_res,), "LOWER(message) = \""+sql_mes+"\" AND server = \""+str(message.channel.guild.id)+"\""):
+                await message.channel.send("Gotowe!")
+            else:
+                await message.channel.send("Coś poszło nie tak")
+            return
+
+        response = select_one("conversations", ("response",), "LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
         if response:
             await message.channel.send(response[0])
             return
+
     except Exception as e:
         now=datetime.now()
         error_msg = "\nError occured: \n"
