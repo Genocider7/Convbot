@@ -111,7 +111,7 @@ def get_pattern(message):
 
 def check_if_mod(member, guild):
     guild_id = str(guild.id)
-    mods = select("moderators", ("is_user", "is_role"), "server = \""+guild_id+"\"")
+    mods = select("moderators", ("moderator", "is_user", "is_role"), "server = \""+guild_id+"\"")
     for mod in mods:
         if mod[1] and str(member.id) == mod[0]:
             return True
