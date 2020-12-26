@@ -194,8 +194,17 @@ async def on_message(message):
             return
     except Exception as e:
         now=datetime.now()
-        sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": ")
+        error_msg = "Error occured: \n"
+        error_msg = error_msg + "Date: "+str(now.strftime("%d/%m/%Y %H:%M:%S"))+"\n"
+        if str(message.channel.type) == "private":
+            error_msg = error_msg + "DM with "+message.author.display_name+" id: "+str(message.author.id)+"\n"
+        else:
+            error_msg = error_msg + "On server "+message.channel.guild.name+" id: "+str(message.channel.guild.id)+"\n"
+        error_msg = error_msg + "Message content: "+message.content+"\n"
+        error_msg = error_msg + "Error text: \n" 
+        sys.stderr.write(error_msg)
         raise e
+        sys.stderr.write("\n")
 
 @client.event
 async def on_guild_join(guild):
