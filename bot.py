@@ -29,16 +29,32 @@ def connect_db():
     )
     cursor = DB.cursor()
 
-def select(query):
+def select(table, values, conditions):
     connect_db()
     global cursor
-    cursor.execute(query)
+    if len(values) == 0:
+        values = ("*",)
+    sql = "SELECT "+values[0]
+    for i in range(1,len(values)):
+        sql = sql + ", " + values[i]
+    sql = sql + " FROM " + table
+    if len(conditions) > 0:
+        sql = sql + " WHERE "+conditions
+    cursor.execute(sql)
     return cursor.fetchall()
     
-def select_one(query):
+def select_one(table, values, conditions):
     connect_db()
     global cursor
-    cursor.execute(query)
+    if len(values) == 0:
+        values = ("*",)
+    sql = "SELECT "+values[0]
+    for i in range(1,len(values)):
+        sql = sql + ", " + values[i]
+    sql = sql + " FROM " + table
+    if len(conditions) > 0:
+        sql = sql + " WHERE "+conditions
+    cursor.execute(sql)
     return cursor.fetchone()
 
 def insert(table, fields, values):
@@ -78,7 +94,7 @@ def get_pattern(message):
 
 def check_if_mod(member, guild):
     guild_id = str(guild.id)
-    mods = select("SELECT moderator, is_user, is_role FROM moderators WHERE server = \""+guild_id+"\"")
+    mods = select("moderators", ("is_user", "is_role"), "server = \""+guild_id+"\"")
     for mod in mods:
         if mod[1] and str(member.id) == mod[0]:
             return True
@@ -91,6 +107,8 @@ def check_if_mod(member, guild):
 @client.event
 async def on_message(message):
     global cursor, forbidden
+
+    L_MES = "LOWER(message) = \""
 
     try:
         array = [3]
@@ -107,7 +125,7 @@ async def on_message(message):
         query_mes = changequotes(mes)
         response = None
         try:
-            response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
+            response = select_one("conversations", ("response",), L_MES+query_mes+"\" AND server = \"ALL\"")
         except mysql.connector.errors.DatabaseError:
             return
         if not response:
@@ -127,7 +145,7 @@ async def on_message(message):
             if not lis:
                 await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
                 return
-            check = select("SELECT id FROM conversations WHERE LOWER(message) = \""+lis[0].lower()+"\"")
+            check = select("conversations", ("id",) ,L_MES+lis[0].lower()+"\"")
             if check:
                 await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
                 return
@@ -154,7 +172,7 @@ async def on_message(message):
                     await message.channel.send(msg)
                     return
             guild_id = str(message.channel.guild.id)
-            messages = select("SELECT message FROM conversations WHERE server = \""+guild_id+"\"")
+            messages = select("conversations", ("message",), "server = \""+guild_id+"\"")
             msg = None
             if len(messages) == 0:
                 msg = "Ten serwer nie posiada żadnych wiadomości na które mam reagować"
@@ -180,7 +198,7 @@ async def on_message(message):
                 await message.channel.send("Nie masz odpowiednich uprawnień")
                 return
             conditions = "LOWER(message) = \""+words[1].lower()+"\" AND server = \""+str(message.channel.guild.id)+"\""
-            check = select_one("SELECT id FROM conversations WHERE "+conditions)
+            check = select_one("conversations", ("id",), conditions)
             if not check:
                 await message.channel.send("Nie znaleziono podanej wiadomości w bazie danych")
                 return
@@ -188,7 +206,7 @@ async def on_message(message):
             await message.channel.send("Gotowe!")
             return        
 
-        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
+        response = select_one("conversations", ("response",), L_MES+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
         if response:
             await message.channel.send(response[0])
             return
@@ -211,8 +229,8 @@ async def on_guild_join(guild):
     for member in guild.members:
         if member.guild_permissions.administrator:
             mod_id = str(member.id)
-            check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
-            if len(check) == 0:
+            check = select("moderators", ("id",), "moderator = \""+mod_id+"\" AND is_user = 1")
+            if not check:
                 server = str(guild.id)
                 insert("moderators", ("moderator", "is_user", "server"), (mod_id, "1", server))
 
