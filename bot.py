@@ -125,7 +125,11 @@ async def on_message(message):
     if mes.startswith("c!list"):
         words = message.content.split(" ")
         to_server = False
-        if words[1].lower() == "-s":
+        try:
+            option = words[1].lower()
+        except IndexError:
+            option = "Null"
+        if option == "-s":
             to_server = True
             permission = check_if_mod(message.author, message.channel.guild)
             if not permission:
