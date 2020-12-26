@@ -96,6 +96,7 @@ async def on_message(message):
     sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": ")
 
     if message.author==client.user:
+        sys.stderr.write("OK\n")
         return
     
     #Super important feature. Bot doesn't work without it
@@ -109,6 +110,7 @@ async def on_message(message):
     try:
         response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
     except mysql.connector.errors.DatabaseError:
+        sys.stderr.write("OK\n")
         return
     if not response:
         if str(message.channel.type) == "private":
