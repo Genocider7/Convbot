@@ -30,16 +30,19 @@ def connect_db():
     cursor = DB.cursor()
 
 def select(query):
+    connect_db()
     global cursor
     cursor.execute(query)
     return cursor.fetchall()
     
 def select_one(query):
+    connect_db()
     global cursor
     cursor.execute(query)
     return cursor.fetchone()
 
 def insert(table, fields, values):
+    connect_db()
     global cursor, DB
     if len(fields)==0:
         return False
@@ -64,6 +67,18 @@ def get_pattern(message):
     else:
         return False
 
+def check_if_mod(member, guild):
+    guild_id = str(guild.id)
+    mods = select("SELECT moderator, is_user, is_role FROM moderators WHERE server = \""+guild_id+"\"")
+    for mod in mods:
+        if mod[1] and str(member.id) == mod[0]:
+            return True
+        if mod[2]:
+            for role in member.roles:
+                if str(role.id) == mod[0]:
+                    return True
+    return False
+
 @client.event
 async def on_message(message):
     global cursor
@@ -77,7 +92,6 @@ async def on_message(message):
 
     mes = message.content.lower()
     query_mes = changequotes(mes)
-    connect_db()
     response = None
     try:
         response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
@@ -92,20 +106,7 @@ async def on_message(message):
         return
 
     if mes.startswith("c!set "):
-        permission = False
-        guild_id = str(message.channel.guild.id)
-        mods = select("SELECT moderator, is_user, is_role FROM moderators WHERE server = \""+guild_id+"\"")
-        for mod in mods:
-            if mod[1] and str(message.author.id) == mod[0]:
-                permission = True
-                break
-            if mod[2]:
-                for role in message.author.roles:
-                    if str(role.id) == mod[0]:
-                        permission = True
-                        break
-                if permission:
-                    break
+        permission = check_if_mod(message.author, message.channel.guild)
         if not permission:
             await message.channel.send("Nie masz odpowiednich uprawnień")
             return
@@ -121,6 +122,34 @@ async def on_message(message):
         await message.channel.send("Gotowe!")
         return
 
+    if mes.startswith("c!list"):
+        words = message.content.split(" ")
+        to_server = False
+        if words[1].lower() == "-s":
+            to_server = True
+            permission = check_if_mod(message.author, message.channel.guild)
+            if not permission:
+                msg = "Wiadomości prosto na serwer mogą wypisywać tylko moderatorzy. Uruchom komendę bez flagi \"-u\" aby dostać listę na DM"
+                await message.channel.send(msg)
+                return
+        guild_id = str(message.channel.guild.id)
+        messages = select("SELECT message FROM conversations WHERE server = \""+guild_id+"\"")
+        msg = None
+        if len(messages) == 0:
+            msg = "Ten serwer nie posiada żadnych wiadomości na które mam reagować"
+        else:
+            msg = "Oto lista wiadomości dla tego serwera:"
+        if to_server:
+            await message.channel.send(msg)
+            for each in messages:
+                await message.channel.send("- "+each[0])
+        else:
+            await message.author.send(msg)
+            for each in messages:
+                await message.author.send("- "+each[0])
+        return
+
+
     response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
     if response:
         await message.channel.send(response[0])
@@ -131,7 +160,6 @@ async def on_guild_join(guild):
     global cursor
     for member in guild.members:
         if member.guild_permissions.administrator:
-            connect_db()
             mod_id = str(member.id)
             check = select("SELECT id FROM moderators WHERE moderator = \""+mod_id+"\" AND is_user = 1")
             if len(check) == 0:
