@@ -121,6 +121,10 @@ def check_if_mod(member, guild):
                     return True
     return False
 
+def mention_to_id(string):
+    ln = len(string)
+    return string[1:(ln-1)]
+
 @client.event
 async def on_message(message):
     global cursor, forbidden
@@ -307,9 +311,13 @@ async def on_message(message):
                 user = None
                 members = message.channel.guild.members
                 for member in members:
-                    if str(member.id) == words[1] or member.display_name.lower() == words[1] or member.mention == words[1]:
+                    if str(member.id) == words[1] or member.display_name.lower() == words[1]:
                         user = member
                         break
+                    if len(words[1]) > 3:
+                        if mention_to_id(words[1]) == str(member.id):
+                            user = member
+                            break
                 if not user:
                     await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
                     return
