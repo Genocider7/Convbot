@@ -313,6 +313,10 @@ async def on_message(message):
                 if not user:
                     await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
                     return
+                check = select("moderators", ("id",), "moderator = "+str(user.id)+" AND is_user = 1 AND server = "+str(message.channel.guild.id))
+                if check:
+                    await message.channel.send("Ta osoba jest już moderatorem na tym serwerze")
+                    return
             else:
                 mod_role = None
                 roles = message.channel.guild.roles
@@ -322,6 +326,10 @@ async def on_message(message):
                         break
                 if not mod_role:
                     await message.channel.send("Nie znaleziono podanej roli na serwerze")
+                    return
+                check = select("moderators", ("id",), "moderator = "+str(mod_role.id)+" AND is_role = 1 AND server = "+str(message.channel.guild.id))
+                if check:
+                    await message.channel.send("Ta rola jest już moderatorska na tym serwerze")
                     return
             if is_user:
                 if insert("moderators", ("moderator", "is_user", "server"), (str(user.id), "1", str(message.channel.guild.id))):
