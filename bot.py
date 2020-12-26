@@ -240,6 +240,54 @@ async def on_message(message):
                 await message.channel.send("Coś poszło nie tak")
             return
 
+        if mes.startswith("c!mods"):
+            words = message.content.split(" ")
+            to_server = False
+            try:
+                option = words[1].lower()
+            except IndexError:
+                option = "Null"
+            if option == "-s":
+                to_server = True
+                permission = check_if_mod(message.author, message.channel.guild)
+                if not permission:
+                    msg = "Listę moderatorów prosto na serwer mogą wypisywać tylko moderatorzy. Uruchom komendę bez flagi \"-u\" aby dostać listę na DM"
+                    await message.channel.send(msg)
+                    return
+            guild_id = str(message.channel.guild.id)
+            mods_users = select("moderators", ("moderator",), "is_user = 1 AND server = \""+guild_id+"\"")
+            mods_roles = select("moderators", ("moderator",), "is_role = 1 AND server = \""+guild_id+"\"")
+            msg = None
+            if len(mods_users)+len(mods_roles) == 0:
+                msg = "Wygląda na to, że ten serwer nie ma żadnych moderatorów. Nie będzie można na tym serwerze używać bota.\nProszę skontaktować się z moim twórcą: Genocider#0794"
+            else:
+                msg = "Oto lista moderatorów dla tego serwera:"
+            if to_server:
+                await message.channel.send(msg)
+                if len(mods_users) > 0:
+                    await message.channel.send("Indywidualni użytkownicy:")
+                for each in mods_users:
+                    member = await message.channel.guild.fetch_member(int(each[0]))
+                    await message.channel.send(member.display_name+"(id: "+each[0]+")")
+                if len(mods_roles) > 0:
+                    await message.channel.send("Role moderatorskie:")
+                for each in mods_roles:
+                    role = message.channel.guild.get_role(int(each[0]))
+                    await message.channel.send(role.name+"(id: "+each[0]+")")
+            else:
+                await message.author.send(msg)
+                if len(mods_users) > 0:
+                    await message.author.send("Indywidualni użytkownicy:")
+                for each in mods_users:
+                    member = await message.channel.guild.fetch_member(int(each[0]))
+                    await message.author.send(member.display_name+"(id: "+each[0]+")")
+                if len(mods_roles) > 0:
+                    await message.author.send("Role moderatorskie:")
+                for each in mods_roles:
+                    role = message.channel.guild.get_role(int(each[0]))
+                    await message.channel.send(role.name+"(id: "+each[0]+")")
+            return
+
         response = select_one("conversations", ("response",), "LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
         if response:
             await message.channel.send(response[0])
