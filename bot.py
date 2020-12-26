@@ -92,110 +92,107 @@ def check_if_mod(member, guild):
 async def on_message(message):
     global cursor, forbidden
 
-    now=datetime.now()
-    sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": ")
-
-    if message.author==client.user:
-        sys.stderr.write("OK\n")
-        return
-    
-    #Super important feature. Bot doesn't work without it
-    if message.mention_everyone:
-        rage = ":AngryPing:791612271293759508"
-        await message.add_reaction(rage)
-
-    mes = message.content.lower()
-    query_mes = changequotes(mes)
-    response = None
     try:
-        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
-    except mysql.connector.errors.DatabaseError:
-        sys.stderr.write("OK\n")
-        return
-    if not response:
-        if str(message.channel.type) == "private":
-            await message.channel.send("Ten bot działa tylko na serwerach, nie DMach")
+        if message.author==client.user:
             return
-    else:
-        await message.channel.send(response[0])
-        return
+        
+        #Super important feature. Bot doesn't work without it
+        if message.mention_everyone:
+            rage = ":AngryPing:791612271293759508"
+            await message.add_reaction(rage)
 
-    if mes.startswith("c!set "):
-        permission = check_if_mod(message.author, message.channel.guild)
-        if not permission:
-            await message.channel.send("Nie masz odpowiednich uprawnień")
-            return
-        lis = get_pattern(changequotes(message.content))
-        if not lis:
-            await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
-            return
-        check = select("SELECT id FROM conversations WHERE LOWER(message) = \""+lis[0].lower()+"\"")
-        if check:
-            await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
-            return
-        for each in forbidden:
-            if lis[0].lower() == each:
-                await message.channel.send("Nie można ustawić wiadomości o takiej treści")
-                return
-        insert("conversations", ("message", "response", "server"), (lis[0], lis[1], str(message.channel.guild.id)))
-        await message.channel.send("Gotowe!")
-        return
-
-    if mes.startswith("c!list"):
-        words = message.content.split(" ")
-        to_server = False
+        mes = message.content.lower()
+        query_mes = changequotes(mes)
+        response = None
         try:
-            option = words[1].lower()
-        except IndexError:
-            option = "Null"
-        if option == "-s":
-            to_server = True
+            response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \"ALL\"")
+        except mysql.connector.errors.DatabaseError:
+            return
+        if not response:
+            if str(message.channel.type) == "private":
+                await message.channel.send("Ten bot działa tylko na serwerach, nie DMach")
+                return
+        else:
+            await message.channel.send(response[0])
+            return
+
+        if mes.startswith("c!set "):
             permission = check_if_mod(message.author, message.channel.guild)
             if not permission:
-                msg = "Wiadomości prosto na serwer mogą wypisywać tylko moderatorzy. Uruchom komendę bez flagi \"-u\" aby dostać listę na DM"
-                await message.channel.send(msg)
+                await message.channel.send("Nie masz odpowiednich uprawnień")
                 return
-        guild_id = str(message.channel.guild.id)
-        messages = select("SELECT message FROM conversations WHERE server = \""+guild_id+"\"")
-        msg = None
-        if len(messages) == 0:
-            msg = "Ten serwer nie posiada żadnych wiadomości na które mam reagować"
-        else:
-            msg = "Oto lista wiadomości dla tego serwera:"
-        if to_server:
-            await message.channel.send(msg)
-            for each in messages:
-                await message.channel.send("- "+each[0])
-        else:
-            await message.author.send(msg)
-            for each in messages:
-                await message.author.send("- "+each[0])
-        return
+            lis = get_pattern(changequotes(message.content))
+            if not lis:
+                await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
+                return
+            check = select("SELECT id FROM conversations WHERE LOWER(message) = \""+lis[0].lower()+"\"")
+            if check:
+                await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
+                return
+            for each in forbidden:
+                if lis[0].lower() == each:
+                    await message.channel.send("Nie można ustawić wiadomości o takiej treści")
+                    return
+            insert("conversations", ("message", "response", "server"), (lis[0], lis[1], str(message.channel.guild.id)))
+            await message.channel.send("Gotowe!")
+            return
 
-    if mes.startswith("c!delete"):
-        words = changequotes(mes).split(" ", 1)
-        if len(words) != 2:
-            await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!delete [wiadomość]")
+        if mes.startswith("c!list"):
+            words = message.content.split(" ")
+            to_server = False
+            try:
+                option = words[1].lower()
+            except IndexError:
+                option = "Null"
+            if option == "-s":
+                to_server = True
+                permission = check_if_mod(message.author, message.channel.guild)
+                if not permission:
+                    msg = "Wiadomości prosto na serwer mogą wypisywać tylko moderatorzy. Uruchom komendę bez flagi \"-u\" aby dostać listę na DM"
+                    await message.channel.send(msg)
+                    return
+            guild_id = str(message.channel.guild.id)
+            messages = select("SELECT message FROM conversations WHERE server = \""+guild_id+"\"")
+            msg = None
+            if len(messages) == 0:
+                msg = "Ten serwer nie posiada żadnych wiadomości na które mam reagować"
+            else:
+                msg = "Oto lista wiadomości dla tego serwera:"
+            if to_server:
+                await message.channel.send(msg)
+                for each in messages:
+                    await message.channel.send("- "+each[0])
+            else:
+                await message.author.send(msg)
+                for each in messages:
+                    await message.author.send("- "+each[0])
             return
-        permission = check_if_mod(message.author, message.channel.guild)
-        if not permission:
-            await message.channel.send("Nie masz odpowiednich uprawnień")
-            return
-        conditions = "LOWER(message) = \""+words[1].lower()+"\" AND server = \""+str(message.channel.guild.id)+"\""
-        check = select_one("SELECT id FROM conversations WHERE "+conditions)
-        if not check:
-            await message.channel.send("Nie znaleziono podanej wiadomości w bazie danych")
-            return
-        delete("conversations", conditions)
-        await message.channel.send("Gotowe!")
-        return        
 
-    response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
-    if response:
-        await message.channel.send(response[0])
-        return
-    
-    sys.stderr.write("OK\n")
+        if mes.startswith("c!delete"):
+            words = changequotes(mes).split(" ", 1)
+            if len(words) != 2:
+                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!delete [wiadomość]")
+                return
+            permission = check_if_mod(message.author, message.channel.guild)
+            if not permission:
+                await message.channel.send("Nie masz odpowiednich uprawnień")
+                return
+            conditions = "LOWER(message) = \""+words[1].lower()+"\" AND server = \""+str(message.channel.guild.id)+"\""
+            check = select_one("SELECT id FROM conversations WHERE "+conditions)
+            if not check:
+                await message.channel.send("Nie znaleziono podanej wiadomości w bazie danych")
+                return
+            delete("conversations", conditions)
+            await message.channel.send("Gotowe!")
+            return        
+
+        response = select_one("SELECT response FROM conversations WHERE LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
+        if response:
+            await message.channel.send(response[0])
+            return
+    except Exception as e:
+        now=datetime.now()
+        sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": "+e)
 
 @client.event
 async def on_guild_join(guild):
