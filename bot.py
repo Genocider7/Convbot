@@ -298,8 +298,6 @@ async def on_message(message):
                 await message.channel.send("Nie masz odpowiednich uprawnień")
                 return
             words = mes.split(" ")
-            for word in words:
-                print(word)
             if len(words) < 2:
                 await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!addModerator [rola/użytkownik] <\"-u\" jeżeli użytkownik>")
                 return
@@ -313,13 +311,12 @@ async def on_message(message):
                 user = None
                 members = message.channel.guild.members
                 for member in members:
-                    if str(member.id) == words[1] or member.display_name.lower() == words[1]:
+                    print("comparing ", (str(member.id),member.display_name.lower(),member.mention), " to ", words[1])
+                    if str(member.id) == words[1] or member.display_name.lower() == words[1] or member.mention == words[1]:
+                        print("got a match")
                         user = member
                         break
-                    if len(words[1]) > 3:
-                        if mention_to_id(words[1]) == str(member.id):
-                            user = member
-                            break
+                    print("Didn't get a match")
                 if not user:
                     await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
                     return
