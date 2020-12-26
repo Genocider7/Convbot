@@ -288,6 +288,53 @@ async def on_message(message):
                     await message.channel.send("**"+role.name+"** (id: "+each[0]+")")
             return
 
+        if mes.startswith("c!addmoderator"):
+            permission = check_if_mod(message.author, message.channel.guild)
+            if not permission:
+                await message.channel.send("Nie masz odpowiednich uprawnień")
+                return
+            words = message.content.split(" ")
+            if len(words) < 2:
+                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!addModerator [rola/użytkownik] <\"-u\" jeżeli użytkownik>")
+                return
+            is_user = False
+            try:
+                option = words[2].lower()
+            except IndexError:
+                option = "Null"
+            if option == "-u":
+                is_user = True
+                user = None
+                members = message.channel.guild.members
+                for member in members:
+                    if str(member.id) == words[1] or member.display_name == words[1] or member.mention == words[1]:
+                        user = member
+                        break
+                if not user:
+                    await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
+                    return
+            else:
+                mod_role = None
+                roles = message.channel.guild.roles
+                for role in roles:
+                    if role.name == words[1] or str(role.id) == words[1]:
+                        mod_role = role
+                        break
+                if not mod_role:
+                    await message.channel.send("Nie znaleziono podanej roli na serwerze")
+                    return
+            if is_user:
+                if insert("moderators", ("moderator", "is_user", "server"), (str(user.id), "1", str(message.channel.guild.id))):
+                    await message.channel.send("Gotowe!")
+                else:
+                    await message.channel.send("Coś poszło nie tak")
+            else:
+                if insert("moderators", ("moderator", "is_role", "server"), (str(role.id), "1", str(message.channel.guild.id))):
+                    await message.channel.send("Gotowe!")
+                else:
+                    await message.channel.send("Coś poszło nie tak")
+            return
+
         response = select_one("conversations", ("response",), "LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
         if response:
             await message.channel.send(response[0])
