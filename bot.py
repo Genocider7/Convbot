@@ -123,9 +123,9 @@ def check_if_mod(member, guild):
 
 def mention_to_id(string):
     if string[2] == "!":
-        start = 2
+        start = 3
     else:
-        start = 1
+        start = 2
     ln = len(string)
     return string[start:(ln-1)]
 
