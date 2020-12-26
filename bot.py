@@ -127,7 +127,7 @@ def mention_to_id(string):
     else:
         start = 1
     ln = len(string)
-    return string[1:(ln-1)]
+    return string[start:(ln-1)]
 
 @client.event
 async def on_message(message):
