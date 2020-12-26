@@ -204,7 +204,7 @@ async def on_message(message):
         error_msg = error_msg + "Error text: \n" 
         sys.stderr.write(error_msg)
         raise e
-        sys.stderr.write("\n")
+        sys.stderr.write("\n\n")
 
 @client.event
 async def on_guild_join(guild):
