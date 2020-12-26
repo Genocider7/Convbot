@@ -194,7 +194,8 @@ async def on_message(message):
             return
     except Exception as e:
         now=datetime.now()
-        sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": "+e)
+        sys.stderr.write(str(now.strftime("%d/%m/%Y %H:%M:%S"))+": ")
+        raise e
 
 @client.event
 async def on_guild_join(guild):
