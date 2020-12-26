@@ -167,7 +167,7 @@ async def on_message(message):
         return
 
     if mes.startswith("c!delete"):
-        words = mes.split(" ", 1)
+        words = changequotes(mes).split(" ", 1)
         if len(words) != 2:
             await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!delete [wiadomość]")
             return
