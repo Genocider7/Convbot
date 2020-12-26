@@ -111,8 +111,6 @@ async def on_message(message):
     L_MES = "LOWER(message) = \""
 
     try:
-        array = [3]
-        print(array[7])
         if message.author==client.user:
             return
         
