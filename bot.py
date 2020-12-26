@@ -91,9 +91,9 @@ def update(table, fields, values, conditions):
         return False
     if len(fields) != len(values):
         return False
-    sql = "UPDATE "+table+" SET "+fields[0]+" = "+values[0]
+    sql = "UPDATE "+table+" SET "+fields[0]+" = \""+values[0]+"\""
     for i in range(1, len(values)):
-        sql = sql + ", "+fields[i]+" = "+values[i]
+        sql = sql + ", "+fields[i]+" = \""+values[i]+"\""
     if len(conditions) > 0:
         sql = sql + " WHERE "+conditions
     cursor.execute(sql)
@@ -228,13 +228,13 @@ async def on_message(message):
             if not pattern:
                 await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!edit [wiadomość] # [odpowiedź]")
                 return
-            sql_mes = pattern[0].lower()
-            sql_res = pattern[1]
+            sql_mes = changequotes(pattern[0]).lower()
+            sql_res = changequotes(pattern[1])
             check = select("conversations", ("id",), "LOWER(message) = \""+sql_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
             if not check:
                 await message.channel.send("Nie znaleziono podanej wiadomości w bazie danych")
                 return
-            if update("conversations",("response",), (sql_res,), "LOWER(message) = \""+sql_mes+"\" AND server = \""+str(message.channel.guild.id)+"\""):
+            if update("conversations", ("response",), (sql_res,), "LOWER(message) = \""+sql_mes+"\" AND server = \""+str(message.channel.guild.id)+"\""):
                 await message.channel.send("Gotowe!")
             else:
                 await message.channel.send("Coś poszło nie tak")
