@@ -307,7 +307,7 @@ async def on_message(message):
                 user = None
                 members = message.channel.guild.members
                 for member in members:
-                    if str(member.id) == words[1] or member.display_name.lower() == words[1] or member.mention.lower() == words[1]:
+                    if str(member.id) == words[1] or member.display_name.lower() == words[1] or member.mention == words[1]:
                         user = member
                         break
                 if not user:
