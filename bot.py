@@ -298,6 +298,8 @@ async def on_message(message):
                 await message.channel.send("Nie masz odpowiednich uprawnień")
                 return
             words = mes.split(" ")
+            for word in words:
+                print(word)
             if len(words) < 2:
                 await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!addModerator [rola/użytkownik] <\"-u\" jeżeli użytkownik>")
                 return
