@@ -293,13 +293,13 @@ async def on_message(message):
             if not permission:
                 await message.channel.send("Nie masz odpowiednich uprawnień")
                 return
-            words = message.content.split(" ")
+            words = mes.split(" ")
             if len(words) < 2:
                 await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!addModerator [rola/użytkownik] <\"-u\" jeżeli użytkownik>")
                 return
             is_user = False
             try:
-                option = words[2].lower()
+                option = words[2]
             except IndexError:
                 option = "Null"
             if option == "-u":
@@ -307,7 +307,7 @@ async def on_message(message):
                 user = None
                 members = message.channel.guild.members
                 for member in members:
-                    if str(member.id) == words[1] or member.display_name == words[1] or member.mention == words[1]:
+                    if str(member.id) == words[1] or member.display_name.lower() == words[1] or member.mention.lower() == words[1]:
                         user = member
                         break
                 if not user:
@@ -317,7 +317,7 @@ async def on_message(message):
                 mod_role = None
                 roles = message.channel.guild.roles
                 for role in roles:
-                    if role.name == words[1] or str(role.id) == words[1]:
+                    if role.name.lower() == words[1] or str(role.id) == words[1]:
                         mod_role = role
                         break
                 if not mod_role:
