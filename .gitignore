@@ -2,3 +2,4 @@ TOKEN
 *.log
 test.py
 get_logs.sh
+*.png
