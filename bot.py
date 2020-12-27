@@ -434,10 +434,10 @@ async def on_message(message):
             error_msg = error_msg + "On server "+message.channel.guild.name+" id: "+str(message.channel.guild.id)+"\n"
         error_msg = error_msg + "Message content: "+message.content+"\n"
         error_msg = error_msg + "TTS: "+str(message.tts)+"\n"
-        error_msg = error_msg + "Attachments: "+len(message.attachments)+":\n"
+        error_msg = error_msg + "Attachments: "+str(len(message.attachments))+":\n"
         for each in message.attachments:
             error_msg = error_msg + "\t"+str(each)+"\n"
-        error_msg = error_msg + "Embeds: "+len(message.embeds)+":\n"
+        error_msg = error_msg + "Embeds: "+str(len(message.embeds))+":\n"
         for each in message.embeds:
             error_msg = error_msg + "\t"+str(each)+"\n"
         error_msg = error_msg + "Error text: \n" 
