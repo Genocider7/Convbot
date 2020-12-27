@@ -166,7 +166,7 @@ async def on_message(message):
             if not lis:
                 await message.channel.send("Nieprawidłowa forma komendy c!set. (c!set [wiadomość] # [odpowiedź]")
                 return
-            check = select("conversations", ("id",) ,"LOWER(message) = \""+lis[0].lower()+"\"")
+            check = select("conversations", ("id",) ,"LOWER(message) = \""+lis[0].lower()+"\" AND server = \""+str(message.channel.guild.id)+"\"")
             if check:
                 await message.channel.send("Odpowiedź do takiej wiadomości już istnieje. Użyj funkcji c!edit aby ją zmienić")
                 return
