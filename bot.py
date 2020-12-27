@@ -408,7 +408,7 @@ async def on_message(message):
                 match_id = mod_user
             else:
                 match_id = mod_role
-            matches = select("moderators", "id", "moderator = "+match_id+" AND server = "+str(message.channel.guild.id))
+            matches = select("moderators", ("id", ), "moderator = \""+match_id+"\" AND server = \""+str(message.channel.guild.id+"\""))
             if len(matches) == 0:
                 await message.channel.send("Nie znaleziono podanej roli/użytkownika w bazie danych")
                 return
@@ -416,7 +416,7 @@ async def on_message(message):
                 error = Exception("Two or more records in database share the same id")
                 await message.channel.send("Wystąpił błąd")
                 raise error
-            delete("moderators", "id = "+str(matches[0][0]))
+            delete("moderators", "id = \""+str(matches[0][0])+"\"")
             await message.channel.send("Gotowe!")
             return
 
