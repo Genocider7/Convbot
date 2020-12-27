@@ -40,6 +40,7 @@ def select(table, values, conditions):
     sql = sql + " FROM " + table
     if len(conditions) > 0:
         sql = sql + " WHERE "+conditions
+    print("Utworzono zapytanie: ", sql)
     cursor.execute(sql)
     return cursor.fetchall()
     
@@ -325,7 +326,7 @@ async def on_message(message):
                 if not user:
                     await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
                     return
-                check = select("moderators", ("id",), "moderator = "+str(user.id)+" AND is_user = 1 AND server = "+str(message.channel.guild.id))
+                check = select("moderators", ("id", ), "moderator = "+str(user.id)+" AND is_user = 1 AND server = "+str(message.channel.guild.id))
                 if check:
                     await message.channel.send("Ta osoba jest już moderatorem na tym serwerze")
                     return
@@ -339,7 +340,7 @@ async def on_message(message):
                 if not mod_role:
                     await message.channel.send("Nie znaleziono podanej roli na serwerze")
                     return
-                check = select("moderators", ("id",), "moderator = "+str(mod_role.id)+" AND is_role = 1 AND server = "+str(message.channel.guild.id))
+                check = select("moderators", ("id", ), "moderator = "+str(mod_role.id)+" AND is_role = 1 AND server = "+str(message.channel.guild.id))
                 if check:
                     await message.channel.send("Ta rola jest już moderatorska na tym serwerze")
                     return
