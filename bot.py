@@ -462,7 +462,7 @@ async def on_guild_join(guild):
 @client.event
 async def on_ready():
     now=datetime.now()
-    print(now.strftime("%d/%m/%Y %H:%M:%S"), " - Logged in as ", client.user.name, " - ", client.user.id)
+    print(now.strftime("%d/%m/%Y %H:%M:%S"), " - Logged in as ", client.user.name, " id: ", client.user.id)
     await client.change_presence(status=discord.Status.online, activity=discord.Game("c!help"))
 
 secretfile = open("TOKEN","r")
