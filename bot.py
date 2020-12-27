@@ -40,7 +40,6 @@ def select(table, values, conditions):
     sql = sql + " FROM " + table
     if len(conditions) > 0:
         sql = sql + " WHERE "+conditions
-    print("Utworzono zapytanie: ", sql)
     cursor.execute(sql)
     return cursor.fetchall()
     
