@@ -333,8 +333,12 @@ async def on_message(message):
                 mod_role = None
                 roles = message.channel.guild.roles
                 for role in roles:
-                    if role.name.lower() == words[1] or str(role.id) == words[1]:
-                        mod_role = role
+                    possibility = [str(role.id), role.name.lower(), "<@"+str(role.id)+">", "<@&"+str(role.id)+">"]
+                    for each in possibility:
+                        if each == words[1]:
+                            mod_role = role
+                            break
+                    if mod_role:
                         break
                 if not mod_role:
                     await message.channel.send("Nie znaleziono podanej roli na serwerze")
@@ -381,7 +385,7 @@ async def on_message(message):
             mod_role = None
             multiple_roles = False
             for role in message.channel.guild.roles:
-                possible = [str(role.id), role.name.lower()]
+                possible = [str(role.id), role.name.lower(), "<@"+str(role.id)+">", "<@&"+str(role.id)+">"]
                 for possibility in possible:
                     if possibility == what:
                         if mod_role:
