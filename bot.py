@@ -4,7 +4,7 @@ TOKEN=""
 DB=None
 cursor=None
 
-forbidden = ["c!set", "c!addmoderator", "c!removemoderator", "c!edit", "c!delete",  "c!list", "c!mods"]
+forbidden = ["c!set", "c!addmoderator", "c!removemoderator", "c!edit", "c!delete",  "c!list", "c!mods", "c!addmod", "c!removemod"]
 sys.stdout=open("convbot.log","a")
 sys.stderr=open("convbot.error.log","a")
 intents = discord.Intents.default()
@@ -296,7 +296,7 @@ async def on_message(message):
                     await message.channel.send("**"+role.name+"** (id: "+each[0]+")")
             return
 
-        if mes.startswith("c!addmoderator"):
+        if mes.startswith("c!addmoderator") or mes.startswith("c!addmod"):
             permission = check_if_mod(message.author, message.channel.guild)
             if not permission:
                 await message.channel.send("Nie masz odpowiednich uprawnień")
@@ -315,13 +315,13 @@ async def on_message(message):
                 user = None
                 members = message.channel.guild.members
                 for member in members:
-                    if str(member.id) == words[1] or member.display_name.lower() == words[1]:
-                        user = member
-                        break
-                    if len(words[1]) > 3:
-                        if mention_to_id(words[1]) == str(member.id):
+                    possibility = [str(member.id), member.display_name.lower(), "<@"+str(member.id)+">", "<@!"+str(member.id)+">"]
+                    for each in possibility:
+                        if each == words[1]:
                             user = member
                             break
+                    if user:
+                        break
                 if not user:
                     await message.channel.send("Nie znaleziono podanego użytkownika na serwerze")
                     return
@@ -355,6 +355,70 @@ async def on_message(message):
                     await message.channel.send("Coś poszło nie tak")
             return
 
+        if mes.startswith("c!removemoderator") or mes.startswith("c!removemod"):
+            permission = check_if_mod(message.author, message.channel.guild)
+            if not permission:
+                await message.channel.send("Nie masz odpowiednich uprawnień")
+                return
+            try:
+                what  = mes.split(" ",1)[1]
+            except IndexError:
+                await message.channel.send("Błędne użycie komendy. Prawidłowe użycie: c!removeModerator [rola/użytkownik]")
+                return
+            mod_user = None
+            multiple_users = False
+            for member in message.channel.guild.members:
+                possible = [str(member.id), member.display_name.lower(), "<@"+str(member.id)+">", "<@!"+str(member.id)+">"]
+                for possibility in possible:
+                    if possibility == what:
+                        if mod_user:
+                            multiple_users = True
+                            break
+                        mod_user = str(member.id)
+                        break
+                if mutliple_users:
+                    break
+            mod_role = None
+            multiple_roles = False
+            for role in message.channel.guild.roles:
+                possible = [str(role.id), role.name.lower()]
+                for possibility in possible:
+                    if possibility = what:
+                        if mod_role:
+                            multiple_roles = True
+                            break
+                        mod_role = str(role.id)
+                        break
+                if multiple_roles:
+                    break
+            if multiple_users:
+                await message.channel.send("Wykryto przynajmniej dwóch różnych użytkowników o takiej samej nazwie na tym serwerze. Odwołaj się do tej komendy przez id")
+                return
+            if multiple_roles:
+                await message.channel.send("Wykryto przynajmniej dwie różne role o takiej samej nazwie na tym serwerze. Odwołaj się do tej komendy przez id")
+                return
+            if mod_role and mod_user:
+                await message.channel.send("Wykryto, że na tym serwerze jest zarówno użytkownik jak i rola ma taką nazwę. Odwłoaj się do tej komendy przez id")
+                return
+            if not (mod_role or mod_user):
+                await message.channel.send("Nie znaleziono podanej roli/użytkownika na serwerze")
+                return
+            if mod_user:
+                match_id = mod_user
+            else:
+                match_it = mod_role
+             matches = select("moderators", "id", "moderator = "+match_id+" AND server = "+str(message.channel.guild.id))
+            if len(matches) == 0:
+                await message.channel.send("Nie znaleziono podanej roli/użytkownika w bazie danych")
+                return
+            if len(matches) > 1:
+                error = Exception("Two or more records in database share the same id")
+                await message.channel.send("Wystąpił błąd")
+                raise error
+            delete("moderators", "id = "+str(matches[0][0]))
+            await message.channel.send("Gotowe!")
+            return
+
         response = select_one("conversations", ("response",), "LOWER(message) = \""+query_mes+"\" AND server = \""+str(message.channel.guild.id)+"\"")
         if response:
             await message.channel.send(response[0])
@@ -369,6 +433,13 @@ async def on_message(message):
         else:
             error_msg = error_msg + "On server "+message.channel.guild.name+" id: "+str(message.channel.guild.id)+"\n"
         error_msg = error_msg + "Message content: "+message.content+"\n"
+        error_msg = error_msg + "TTS: "+str(message.tts)+"\n"
+        error_msg = error_msg + "Attachments: "+len(message.attachments)+":\n"
+        for each in message.attachments:
+            error_msg = error_msg + "\t"+str(each)+"\n"
+        error_msg = error_msg + "Embeds: "+len(message.embeds)+":\n"
+        for each in message.embeds:
+            error_msg = error_msg + "\t"+str(each)+"\n"
         error_msg = error_msg + "Error text: \n" 
         sys.stderr.write(error_msg)
         raise e
