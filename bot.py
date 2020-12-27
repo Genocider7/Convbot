@@ -376,14 +376,14 @@ async def on_message(message):
                             break
                         mod_user = str(member.id)
                         break
-                if mutliple_users:
+                if multiple_users:
                     break
             mod_role = None
             multiple_roles = False
             for role in message.channel.guild.roles:
                 possible = [str(role.id), role.name.lower()]
                 for possibility in possible:
-                    if possibility = what:
+                    if possibility == what:
                         if mod_role:
                             multiple_roles = True
                             break
@@ -406,8 +406,8 @@ async def on_message(message):
             if mod_user:
                 match_id = mod_user
             else:
-                match_it = mod_role
-             matches = select("moderators", "id", "moderator = "+match_id+" AND server = "+str(message.channel.guild.id))
+                match_id = mod_role
+            matches = select("moderators", "id", "moderator = "+match_id+" AND server = "+str(message.channel.guild.id))
             if len(matches) == 0:
                 await message.channel.send("Nie znaleziono podanej roli/użytkownika w bazie danych")
                 return
