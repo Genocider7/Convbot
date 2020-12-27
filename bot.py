@@ -419,6 +419,10 @@ async def on_message(message):
                 error = Exception("Two or more records in database share the same id")
                 await message.channel.send("Wystąpił błąd")
                 raise error
+            check = select("moderators", ("id", ), "server = \""+str(message.channel.guild.id)+"\"")
+            if len(check) < 2:
+                await message.channel.send("Nie można usunąć moderatora. Na serwerze musi znajdować się przynajmniej jeden moderator")
+                return
             delete("moderators", "id = \""+str(matches[0][0])+"\"")
             await message.channel.send("Gotowe!")
             return
